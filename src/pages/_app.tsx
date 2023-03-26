@@ -1,6 +1,7 @@
 import { type AppType } from "next/app";
 import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 
 import { api } from "~/utils/api";
 
@@ -22,7 +23,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           colorScheme: "dark",
         }}
       >
-        <Component {...pageProps} />
+        <ModalsProvider>
+          <Component {...pageProps} />
+        </ModalsProvider>
       </MantineProvider>
     </>
   );

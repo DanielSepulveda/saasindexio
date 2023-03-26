@@ -1,33 +1,58 @@
+import * as React from "react";
 import {
-  ActionIcon,
   Anchor,
   Card,
   Group,
   Stack,
   Text,
   Title,
+  UnstyledButton,
 } from "@mantine/core";
 import { type Product } from "@prisma/client";
 import { IconExternalLink } from "@tabler/icons-react";
 
-type ProductCardProps = Product;
+type ProductCardProps = {
+  onClick: (product: Product) => void;
+  product: Product;
+};
 
 export function ProductCard(props: ProductCardProps) {
-  const { name, shortDesc, url } = props;
+  const { product, onClick } = props;
+  const { name, shortDesc, url } = product;
+
+  const handleClick = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      onClick(product);
+    },
+    [onClick, product],
+  );
 
   return (
-    <Card withBorder>
-      <Stack>
-        <Group position="apart">
-          <Title order={3}>{name}</Title>
-          <Anchor href={url} target="_blank">
-            <ActionIcon>
+    <UnstyledButton onClick={handleClick}>
+      <Card withBorder>
+        <Stack>
+          <Group position="apart" align="center">
+            <Title order={3}>{name}</Title>
+            <Anchor
+              href={url}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              sx={(theme) => ({
+                display: "inline-flex",
+                "&:hover": {
+                  color: theme.colors.blue[7],
+                },
+              })}
+            >
               <IconExternalLink />
-            </ActionIcon>
-          </Anchor>
-        </Group>
-        <Text color="dimmed">{shortDesc}</Text>
-      </Stack>
-    </Card>
+            </Anchor>
+          </Group>
+          <Text color="dimmed">{shortDesc}</Text>
+        </Stack>
+      </Card>
+    </UnstyledButton>
   );
 }
