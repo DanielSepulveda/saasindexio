@@ -22,15 +22,18 @@
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-import { initTRPC } from "@trpc/server";
+import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { type OpenApiMeta } from "trpc-openapi";
 import { ZodError } from "zod";
 
+import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
-type CreateContextOptions = Record<string, never>;
+type CreateContextOptions = {
+  auth: boolean;
+};
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -42,9 +45,10 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     prisma,
+    auth: opts.auth,
   };
 };
 
@@ -54,8 +58,47 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+function getAuth(opts: CreateNextContextOptions) {
+  const currentHost = env.NEXT_PUBLIC_VERCEL_URL;
+
+  // Dev environment
+  if (!currentHost) {
+    return true;
+  }
+
+  const incomingReqHost = opts.req.headers.host;
+
+  // Dev env or same host (vercel)
+  if (incomingReqHost === "localhost:3000" || incomingReqHost === currentHost) {
+    return true;
+  }
+
+  // Check if request comes from retool
+  if (incomingReqHost !== currentHost) {
+    const auth = opts.req.headers.authorization;
+
+    if (!auth) {
+      return false;
+    }
+
+    const [type, token] = auth.split(" ");
+
+    if (type !== "Bearer") {
+      return false;
+    }
+
+    if (token === env.API_RETOOL_TOKEN) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export const createTRPCContext = (opts: CreateNextContextOptions) => {
+  return createInnerTRPCContext({
+    auth: getAuth(opts),
+  });
 };
 
 const t = initTRPC
@@ -97,3 +140,13 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+const isAuthed = t.middleware(({ ctx, next }) => {
+  if (!ctx.auth) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authorized" });
+  }
+
+  return next();
+});
+
+export const protectedProcedure = t.procedure.use(isAuthed);

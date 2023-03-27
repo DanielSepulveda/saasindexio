@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 /* ------------------------------ LIST PRODUCTS ----------------------------- */
 
@@ -19,7 +23,7 @@ const addProductSchema = z.object({
   hasFreeTier: z.boolean().default(false),
 });
 
-const addProduct = publicProcedure
+const addProduct = protectedProcedure
   .meta({ openapi: { method: "POST", path: "/product" } })
   .input(addProductSchema)
   .mutation(({ ctx, input }) => {
