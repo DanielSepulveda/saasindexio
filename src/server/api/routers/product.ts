@@ -20,6 +20,7 @@ const addProductSchema = z.object({
 });
 
 const addProduct = publicProcedure
+  .meta({ openapi: { method: "POST", path: "/product" } })
   .input(addProductSchema)
   .mutation(({ ctx, input }) => {
     const product = ctx.prisma.product.create({
