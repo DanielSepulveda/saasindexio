@@ -66,7 +66,7 @@ const deleteProductSchema = z.object({
 });
 
 const deleteProduct = protectedProcedure
-  .meta({ openapi: { method: "DELETE", path: "/product" } })
+  .meta({ openapi: { method: "POST", path: "/product/delete" } })
   .input(deleteProductSchema)
   .mutation(async ({ ctx, input }) => {
     const product = await ctx.prisma.product.findUnique({
