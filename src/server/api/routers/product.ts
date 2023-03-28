@@ -40,6 +40,15 @@ const addProduct = protectedProcedure
       },
     });
 
+    console.log(
+      `
+        /* -------------------------------------------------------------------------- */
+        /*                              NEW PRODUCT ADDED                             */
+        /* -------------------------------------------------------------------------- */
+      `,
+    );
+    console.log(newProduct);
+
     return newProduct;
   });
 
