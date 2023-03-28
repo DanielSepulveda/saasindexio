@@ -9,6 +9,10 @@ const server = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
   API_RETOOL_TOKEN: z.string(),
+  OPENAI_API_KEY: z.string(),
+  PINECONE_ENVIRONMENT: z.string(),
+  PINECONE_API_KEY: z.string(),
+  PINECONE_INDEX: z.string(),
 });
 
 /**
@@ -30,6 +34,10 @@ const processEnv = {
   NODE_ENV: process.env.NODE_ENV,
   NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
   API_RETOOL_TOKEN: process.env.API_RETOOL_TOKEN,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
+  PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+  PINECONE_INDEX: process.env.PINECONE_INDEX,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

@@ -22,6 +22,8 @@
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
+
+import { PineconeClient } from "@pinecone-database/pinecone";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
@@ -30,6 +32,8 @@ import { ZodError } from "zod";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+
+const pinecone = new PineconeClient();
 
 type CreateContextOptions = {
   auth: boolean;
@@ -45,9 +49,15 @@ type CreateContextOptions = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
-const createInnerTRPCContext = (opts: CreateContextOptions) => {
+const createInnerTRPCContext = async (opts: CreateContextOptions) => {
+  await pinecone.init({
+    environment: env.PINECONE_ENVIRONMENT,
+    apiKey: env.PINECONE_API_KEY,
+  });
+
   return {
     prisma,
+    pinecone,
     auth: opts.auth,
   };
 };

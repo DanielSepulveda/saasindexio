@@ -1,3 +1,5 @@
+import { type Product } from "@prisma/client";
+import { OpenAIEmbeddings } from "langchain/embeddings";
 import { z } from "zod";
 
 import {
@@ -19,15 +21,15 @@ const addProductSchema = z.object({
   url: z.string().url(),
   shortDesc: z.string(),
   fullDesc: z.string().optional(),
-  releaseYear: z.number().optional(),
+  releaseYear: z.string().optional(),
   hasFreeTier: z.boolean().default(false),
 });
 
 const addProduct = protectedProcedure
   .meta({ openapi: { method: "POST", path: "/product" } })
   .input(addProductSchema)
-  .mutation(({ ctx, input }) => {
-    const product = ctx.prisma.product.create({
+  .mutation(async ({ ctx, input }) => {
+    const newProduct: Product = await ctx.prisma.product.create({
       data: {
         name: input.name,
         url: input.url,
@@ -38,7 +40,7 @@ const addProduct = protectedProcedure
       },
     });
 
-    return product;
+    return newProduct;
   });
 
 export const productRouter = createTRPCRouter({

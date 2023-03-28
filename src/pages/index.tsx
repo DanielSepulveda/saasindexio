@@ -1,6 +1,14 @@
 import * as React from "react";
 import { type NextPage } from "next";
-import { AppShell, Header, Modal, SimpleGrid, Text } from "@mantine/core";
+import {
+  AppShell,
+  Header,
+  Modal,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import { type Product } from "@prisma/client";
 
 import { api } from "~/utils/api";
@@ -38,15 +46,18 @@ const Home: NextPage = () => {
           </Header>
         }
       >
-        <SimpleGrid cols={2}>
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onClick={handleClickProduct}
-            />
-          ))}
-        </SimpleGrid>
+        <Stack>
+          <TextInput placeholder="Search product" variant="filled" size="xl" />
+          <SimpleGrid cols={2}>
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onClick={handleClickProduct}
+              />
+            ))}
+          </SimpleGrid>
+        </Stack>
       </AppShell>
 
       <Modal
