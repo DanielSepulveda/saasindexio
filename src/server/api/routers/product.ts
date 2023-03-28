@@ -11,7 +11,7 @@ import {
 /* ------------------------------ LIST PRODUCTS ----------------------------- */
 
 const listProducts = publicProcedure.query(({ ctx }) => {
-  return ctx.prisma.product.findMany();
+  return ctx.prisma.product.findMany({ orderBy: { createdAt: "desc" } });
 });
 
 /* ----------------------------- ADD PRODUCT ----------------------------- */
@@ -39,15 +39,6 @@ const addProduct = protectedProcedure
         hasFreeTier: input.hasFreeTier,
       },
     });
-
-    console.log(
-      `
-        /* -------------------------------------------------------------------------- */
-        /*                              NEW PRODUCT ADDED                             */
-        /* -------------------------------------------------------------------------- */
-      `,
-    );
-    console.log(newProduct);
 
     return newProduct;
   });
