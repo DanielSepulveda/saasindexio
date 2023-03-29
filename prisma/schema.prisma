@@ -14,8 +14,8 @@ datasource db {
 model Product {
   id          String   @id @default(cuid())
   name        String
-  shortDesc   String
-  fullDesc    String?
+  shortDesc   String   @db.VarChar(255)
+  fullDesc    String?  @db.Text
   url         String
   releaseYear String?
   hasFreeTier Boolean  @default(false)

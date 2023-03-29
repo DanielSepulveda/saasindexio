@@ -78,7 +78,10 @@ const deleteProduct = protectedProcedure
     }
 
     const pineconeIndex = ctx.pinecone.Index(env.PINECONE_INDEX);
-    await pineconeIndex.delete1({ ids: [product.id] });
+    await pineconeIndex.delete1({
+      ids: [product.id],
+      namespace: "description",
+    });
 
     return ctx.prisma.product.delete({ where: { id: input.id } });
   });
