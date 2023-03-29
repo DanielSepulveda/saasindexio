@@ -48,7 +48,13 @@ const Home: NextPage = () => {
       >
         <Stack>
           <TextInput placeholder="Search product" variant="filled" size="xl" />
-          <SimpleGrid cols={2}>
+          <SimpleGrid
+            cols={1}
+            breakpoints={[
+              { minWidth: "sm", cols: 2 },
+              { minWidth: "lg", cols: 3 },
+            ]}
+          >
             {products.map((product) => (
               <ProductCard
                 key={product.id}

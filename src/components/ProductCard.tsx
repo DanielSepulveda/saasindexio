@@ -30,7 +30,7 @@ export function ProductCard(props: ProductCardProps) {
 
   return (
     <UnstyledButton onClick={handleClick}>
-      <Card withBorder>
+      <Card withBorder h="100%">
         <Stack>
           <Group position="apart" align="center">
             <Title order={3}>{name}</Title>
