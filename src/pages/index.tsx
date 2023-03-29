@@ -1,6 +1,7 @@
 import * as React from "react";
 import { type NextPage } from "next";
 import {
+  ActionIcon,
   AppShell,
   Header,
   Modal,
@@ -10,6 +11,8 @@ import {
   TextInput,
 } from "@mantine/core";
 import { type Product } from "@prisma/client";
+import { IconX } from "@tabler/icons-react";
+import { debounce } from "lodash-es";
 
 import { api } from "~/utils/api";
 import { ProductCard } from "~/components/ProductCard";
@@ -20,10 +23,6 @@ const Home: NextPage = () => {
     null,
   );
 
-  const { data: productsData } = api.product.list.useQuery(undefined, {
-    staleTime: 5 * MS_TIME_SCALE.m,
-  });
-
   const handleClickProduct = React.useCallback((product: Product) => {
     setClickedProduct(product);
   }, []);
@@ -31,6 +30,34 @@ const Home: NextPage = () => {
   const handleCloseProductModal = React.useCallback(() => {
     setClickedProduct(null);
   }, []);
+
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const debouncedSearchChange = React.useMemo(
+    () => debounce(handleSearchChange, 500),
+    [],
+  );
+
+  const handleClearSearch = React.useCallback(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+      setSearchQuery("");
+    }
+  }, []);
+
+  const { data: productsData } = api.product.list.useQuery(
+    {
+      search: searchQuery,
+    },
+    {
+      staleTime: 5 * MS_TIME_SCALE.m,
+    },
+  );
 
   const products = productsData || [];
   const isProductModalOpen = clickedProduct != null;
@@ -47,7 +74,19 @@ const Home: NextPage = () => {
         }
       >
         <Stack>
-          <TextInput placeholder="Search product" variant="filled" size="xl" />
+          <TextInput
+            ref={searchInputRef}
+            placeholder="Search product"
+            variant="filled"
+            size="xl"
+            // value={searchQuery}
+            onChange={debouncedSearchChange}
+            rightSection={
+              <ActionIcon variant="transparent" onClick={handleClearSearch}>
+                <IconX />
+              </ActionIcon>
+            }
+          />
           <SimpleGrid
             cols={1}
             breakpoints={[

@@ -1,3 +1,4 @@
+import { type ScoredVector } from "@pinecone-database/pinecone";
 import { type Product } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Document } from "langchain/document";
@@ -14,9 +15,66 @@ import {
 
 /* ------------------------------ LIST PRODUCTS ----------------------------- */
 
-const listProducts = publicProcedure.query(({ ctx }) => {
-  return ctx.prisma.product.findMany({ orderBy: { createdAt: "desc" } });
+const listProductsSchema = z.object({
+  search: z.string().optional(),
 });
+
+const listProducts = publicProcedure
+  .input(listProductsSchema)
+  .query(async ({ ctx, input }) => {
+    if (input.search) {
+      const pineconeIndex = ctx.pinecone.Index(env.PINECONE_INDEX);
+      const embeddings = new OpenAIEmbeddings();
+
+      const searchQuery = await embeddings.embedQuery(input.search);
+
+      const searchResults = await pineconeIndex.query({
+        queryRequest: {
+          vector: searchQuery,
+          topK: 10,
+          namespace: "description",
+          includeMetadata: true,
+        },
+      });
+
+      if (!searchResults.matches || searchResults.matches.length === 0) {
+        return [];
+      }
+
+      const searchMatches = searchResults.matches;
+      const searchMatchesMap = new Map<string, ScoredVector>();
+
+      const productIds = searchMatches.map((match) => {
+        searchMatchesMap.set(match.id, match);
+        return match.id;
+      });
+
+      const foundProducts = await ctx.prisma.product.findMany({
+        where: { id: { in: productIds } },
+      });
+
+      const productsWithScore = foundProducts.map((product) => {
+        const productMatch = searchMatchesMap.get(product.id);
+        const productScore =
+          productMatch && productMatch.score ? productMatch.score : 0;
+
+        return {
+          ...product,
+          score: productScore,
+        };
+      });
+
+      const sortedProducts = productsWithScore.sort(
+        (a, b) => b.score - a.score,
+      );
+
+      return sortedProducts;
+    }
+
+    return ctx.prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  });
 
 /* ----------------------------- ADD PRODUCT ----------------------------- */
 
