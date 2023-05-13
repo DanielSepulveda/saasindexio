@@ -13,6 +13,7 @@ const server = z.object({
   PINECONE_ENVIRONMENT: z.string(),
   PINECONE_API_KEY: z.string(),
   PINECONE_INDEX: z.string(),
+  INTERVAL_KEY: z.string(),
 });
 
 /**
@@ -38,6 +39,7 @@ const processEnv = {
   PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
   PINECONE_API_KEY: process.env.PINECONE_API_KEY,
   PINECONE_INDEX: process.env.PINECONE_INDEX,
+  INTERVAL_KEY: process.env.INTERVAL_KEY,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

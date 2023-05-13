@@ -10,11 +10,13 @@
     "db:push": "prisma db push --skip-generate",
     "db:studio": "prisma studio --port 5556",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "dev:interval": "dotenv nodemon --watch ./src/admin/interval.ts --exec ts-node ./src/admin/interval.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",
+    "@interval/sdk": "^0.38.0",
     "@mantine/core": "^6.0.4",
     "@mantine/hooks": "^6.0.4",
     "@mantine/modals": "^6.0.4",
@@ -34,6 +36,7 @@
     "nanoid": "^3.3.6",
     "next": "^13.2.4",
     "nextjs-cors": "^2.1.2",
+    "nodemon": "^2.0.22",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.8",
@@ -51,10 +54,12 @@
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
+    "dotenv-cli": "^7.1.0",
     "eslint": "^8.36.0",
     "eslint-config-next": "^13.2.4",
     "prettier": "^2.8.7",
     "prisma": "^4.11.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.2"
   },
   "ct3aMetadata": {
